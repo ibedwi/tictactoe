@@ -1,5 +1,7 @@
 import React, { useReducer } from "react";
 import "./App.css";
+import XIcon from "./img/x.png";
+import OIcon from "./img/o.png";
 
 // State
 // playerTurn: who is selecting?
@@ -229,6 +231,10 @@ function App() {
     }
   };
 
+  const isSelected = (n: number) => {
+    return state.boardState[n] ?? false;
+  };
+
   return (
     <div className="App">
       <h1>Tic Tac Toe</h1>
@@ -249,9 +255,28 @@ function App() {
           <div
             key={n}
             className="grid-item"
-            onClick={() => onClickTile(Number(n))}
+            onClick={() =>
+              isSelected(Number(n))
+                ? alert("tile already selected!")
+                : onClickTile(Number(n))
+            }
           >
-            {n}: {JSON.stringify(state.boardState[n])}
+            {state.boardState[n] === 1 && (
+              <img
+                src={OIcon}
+                alt="player-1-selection"
+                height={50}
+                width={50}
+              />
+            )}
+            {state.boardState[n] === 2 && (
+              <img
+                src={XIcon}
+                alt="player-2-selection"
+                height={50}
+                width={50}
+              />
+            )}
           </div>
         ))}
       </div>
