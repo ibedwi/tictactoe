@@ -3,10 +3,6 @@ import "./App.css";
 import XIcon from "./img/x.png";
 import OIcon from "./img/o.png";
 
-// State
-// playerTurn: who is selecting?
-// boardState: currentboard state
-
 type Player = 1 | 2;
 type BoardState = {
   [key: number]: Player | null;
@@ -124,6 +120,7 @@ function boardReducer(state: State, action: Action): State {
   }
 }
 
+// Check if arr 2 is in arr 1
 function isIncludeArray(arr1: Array<number>, arr2: Array<number>): boolean {
   const reference = [...arr2];
   for (let i = 0; i < arr1.length; i++) {
@@ -139,22 +136,24 @@ function isIncludeArray(arr1: Array<number>, arr2: Array<number>): boolean {
   }
 }
 
+// Function to check if the current user's selection is
+// the correct solution. This function using the possible solutions array
 const isWinner = (selectionArr: Array<number>): boolean => {
-  // Possible check algorithm:
+  // Possible check algorithms:
+  // 1. Using 2D array
   // has the same first index
   // [[0,0], [0,1], [0,2]]
   // has the same second index
   // [[0,1], [1,1], [2,1]]
 
+  // 2. Using 1D array
   // has the same first index
-  // berderet -> horizontal benar
-  // jarak 2 -> vertical benar
-  // jarak 3 -> silang benar
+  // in a row: [1,2,3] -> horizontal correct
+  // in a row with 2 number span: [2,5,8] -> vertical correct
+  // in a row with 3 number span: cross correct
 
-  // has the same second index
-  // [[0,1], [1,1], [2,1]]
-
-  // winner candidate
+  // 3. Using possible solutions array
+  // correct solutions
   // [1,2,3]
   // [4,5,6]
   // [7,8,9]
@@ -164,7 +163,7 @@ const isWinner = (selectionArr: Array<number>): boolean => {
   // [1,5,9]
   // [3,5,7]
 
-  // sorted
+  // correct solution sorted
   // [1,2,3]
   // [1,4,7]
   // [1,5,9]
@@ -174,13 +173,13 @@ const isWinner = (selectionArr: Array<number>): boolean => {
   // [4,5,6]
   // [7,8,9]
 
-  // early check:
   // Check if has solution minimal length
   if (selectionArr.length < 3) {
     return false;
   }
 
   const firstArr = selectionArr[0];
+  // Check the solutions based on correct solutions array
   switch (firstArr) {
     case 1:
       if (
@@ -218,9 +217,24 @@ const isWinner = (selectionArr: Array<number>): boolean => {
 };
 
 function App() {
-  // TODO: add reset state
-  // TODO: add choices left for tie state
   const [state, dispatch] = useReducer(boardReducer, initialState);
+
+  // Read from local storage
+  const getSavedScore = () => {
+    // read from local storage
+    return {
+      ...initialState,
+      player1Win:
+        localStorage.getItem("player1Win") != ""
+          ? localStorage.getItem("player1Win")
+          : 0,
+
+      player2Win:
+        localStorage.getItem("player2Win") != ""
+          ? localStorage.getItem("player1Win")
+          : 1,
+    };
+  };
 
   // TODO: useMemo for render board
   const onClickTile = (tileNumber: number) => {
@@ -242,10 +256,10 @@ function App() {
       <div style={{ paddingBottom: 25 }}>
         <div>Current Turn: {state.currentTurn}</div>
         <div>Player 1(X): {state.player1Win}</div>
-        <div>Player 1 Sleection: {JSON.stringify(state.player1)}</div>
+        <div>Player 1 Selections: {JSON.stringify(state.player1)}</div>
         <div>Tie: {state.tieCount}</div>
         <div>Player 2(O): {state.player2Win}</div>
-        <div>Player 2 Sleection: {JSON.stringify(state.player2)}</div>
+        <div>Player 2 Selections: {JSON.stringify(state.player2)}</div>
 
         <div>Choices Left: {JSON.stringify(state.leftChoices)}</div>
       </div>
