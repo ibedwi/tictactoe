@@ -20,6 +20,8 @@ type State = {
   winner: Player;
   player1Win: number;
   player2Win: number;
+  tieCount: number;
+  leftChoices: Array<number>;
 };
 
 const initialState: State = {
@@ -40,6 +42,8 @@ const initialState: State = {
   winner: null,
   player1Win: 0,
   player2Win: 0,
+  leftChoices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  tieCount: 0,
 };
 
 type Action = {
@@ -52,7 +56,16 @@ function boardReducer(state: State, action: Action): State {
     case "PLAYER_1_SELECT": {
       const newPlayer1Selection = [...state.player1, action.payload].sort();
       const isPlayer1Win = isWinner(newPlayer1Selection);
+      const newChoices = state.leftChoices.filter((n) => n != action.payload);
 
+      if (newChoices.length === 0 && !isPlayer1Win) {
+        return {
+          ...initialState,
+          player1Win: state.player1Win,
+          player2Win: state.player2Win,
+          tieCount: state.tieCount + 1,
+        };
+      }
       if (isPlayer1Win) {
         return {
           ...initialState,
@@ -68,12 +81,22 @@ function boardReducer(state: State, action: Action): State {
             [action.payload]: 1,
           },
           player1: newPlayer1Selection,
+          leftChoices: newChoices,
         };
       }
     }
     case "PLAYER_2_SELECT": {
       const newPlayer2Selection = [...state.player2, action.payload].sort();
       const isPlayer2Win = isWinner(newPlayer2Selection);
+      const newChoices = state.leftChoices.filter((n) => n != action.payload);
+      if (newChoices.length === 0 && !isPlayer2Win) {
+        return {
+          ...initialState,
+          player1Win: state.player1Win,
+          player2Win: state.player2Win,
+          tieCount: state.tieCount + 1,
+        };
+      }
       if (isPlayer2Win) {
         return {
           ...initialState,
@@ -89,6 +112,7 @@ function boardReducer(state: State, action: Action): State {
             [action.payload]: 2,
           },
           player2: newPlayer2Selection,
+          leftChoices: newChoices,
         };
       }
     }
@@ -213,9 +237,11 @@ function App() {
         <div>Current Turn: {state.currentTurn}</div>
         <div>Player 1(X): {state.player1Win}</div>
         <div>Player 1 Sleection: {JSON.stringify(state.player1)}</div>
-        <div>Tie: [score placeholder]</div>
+        <div>Tie: {state.tieCount}</div>
         <div>Player 2(O): {state.player2Win}</div>
         <div>Player 2 Sleection: {JSON.stringify(state.player2)}</div>
+
+        <div>Choices Left: {JSON.stringify(state.leftChoices)}</div>
       </div>
 
       <div className="grid-container">
